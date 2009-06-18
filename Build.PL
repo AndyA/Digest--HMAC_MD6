@@ -16,7 +16,7 @@ my $builder = MyBuilder->new(
   requires          => {
     'Test::More'   => 0,
     'Digest::HMAC' => '1.01',
-    'Digest::MD6'  => '0.07',
+    'Digest::MD6'  => '0.08',
   },
   add_to_cleanup => ['Digest-HMAC_MD6-*'],
 );
