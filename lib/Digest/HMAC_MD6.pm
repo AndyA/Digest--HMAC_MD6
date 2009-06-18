@@ -73,8 +73,6 @@ sub new {
   my ( $class, $key, $block_size, $hash_bits ) = @_;
 
   $block_size ||= 64;
- 
-  $DB::single = 1 if $hash_bits == 512;
 
   $key = Digest::MD6->new( $hash_bits )->add( $key )->digest
    if length( $key ) > $block_size;
