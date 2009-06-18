@@ -3,116 +3,120 @@ print "1..14\n";
 $test_case = 0;
 $algorithm = "";
 
-while (<DATA>) {
-   next if /^\s+$/;            # blank lines
-   next if /^Cheng & Glenn/;   # page header
-   next if /^RFC 2202/;        # page header
-   chomp;
-   if (/^2\. Test Cases for/ .. /4\. Security Considerations/) {
-	if (/^\d+\. Test Cases for (\S+)/) {
-	    if (defined $key) { save($key, $val); undef($key) }
-	    $algorithm = $1;
-        } elsif (/^(\w+(?:-\w+)*)\s+=\s+(.*)/) {
-            save($key, $val) if defined $key;
-	    $key = $1;
-	    $val = $2;
-	    $test_case = $val if $key eq "test_case";
-        } elsif (/^\s+(.*)/) {
-	    $val .= " $1";
-        } elsif (/^4\. /) {
-	    # ignore
-        } else {
-	    print ">>> $_\n";
-        }
-   }
-}
-close(DATA);
-save($key, $val) if $key;
-
-sub save
-{
-    my($key,$val) = @_;
-    if ($val =~ /^0x(..) repeated (\d+) times$/) {
-	$val = chr(hex($1)) x $2;
-    } elsif ($val =~ s/^0x//) {
-	$val = pack("H*", $val);
-    } elsif ($val =~ s/^\"// && $val =~ s/\"$//) {
-	# we already did it
+while ( <DATA> ) {
+  next if /^\s+$/;             # blank lines
+  next if /^Cheng & Glenn/;    # page header
+  next if /^RFC 2202/;         # page header
+  chomp;
+  if ( /^2\. Test Cases for/ .. /4\. Security Considerations/ ) {
+    if ( /^\d+\. Test Cases for (\S+)/ ) {
+      if ( defined $key ) { save( $key, $val ); undef( $key ) }
+      $algorithm = $1;
     }
-    $case{$algorithm}[$test_case-1]{$key} = $val;
+    elsif ( /^(\w+(?:-\w+)*)\s+=\s+(.*)/ ) {
+      save( $key, $val ) if defined $key;
+      $key       = $1;
+      $val       = $2;
+      $test_case = $val if $key eq "test_case";
+    }
+    elsif ( /^\s+(.*)/ ) {
+      $val .= " $1";
+    }
+    elsif ( /^4\. / ) {
+      # ignore
+    }
+    else {
+      print ">>> $_\n";
+    }
+  }
+}
+close( DATA );
+save( $key, $val ) if $key;
+
+sub save {
+  my ( $key, $val ) = @_;
+  if ( $val =~ /^0x(..) repeated (\d+) times$/ ) {
+    $val = chr( hex( $1 ) ) x $2;
+  }
+  elsif ( $val =~ s/^0x// ) {
+    $val = pack( "H*", $val );
+  }
+  elsif ( $val =~ s/^\"// && $val =~ s/\"$// ) {
+    # we already did it
+  }
+  $case{$algorithm}[ $test_case - 1 ]{$key} = $val;
 }
 
 #use Data::Dumper; print Dumper(\%case);
-
 
 $testno = 0;
 
 use Digest::HMAC_MD6 qw(hmac_md6);
 print "\n# HMAC-MD6 tests\n";
-foreach (@{$case{"HMAC-MD6"}}) {
-    $testno++;
+foreach ( @{ $case{"HMAC-MD6"} } ) {
+  $testno++;
 
-    # This is a temporary workaround necessitated by a DEC
-    # compiler bug which breaks the 'x' operator.  See
-    #
-    #  http://www.xray.mpe.mpg.de/mailing-lists/perl5-porters/1998-12/msg01720.html
-    #
-    if ($^O eq 'dec_osf' and $] < 5.00503) {
-      require Config;
-      my $temp=\%Config::Config;  # suppress a silly warning
-      if ($testno =~ /^(?:3|4|6|7)$/ and ! $Config::Config{gccversion}) {
-        print "ok $testno # skipping test on this platform\n";
-        next;
-      }
+# This is a temporary workaround necessitated by a DEC
+# compiler bug which breaks the 'x' operator.  See
+#
+#  http://www.xray.mpe.mpg.de/mailing-lists/perl5-porters/1998-12/msg01720.html
+#
+  if ( $^O eq 'dec_osf' and $] < 5.00503 ) {
+    require Config;
+    my $temp = \%Config::Config;    # suppress a silly warning
+    if ( $testno =~ /^(?:3|4|6|7)$/ and !$Config::Config{gccversion} ) {
+      print "ok $testno # skipping test on this platform\n";
+      next;
     }
+  }
 
-    #use Data::Dumper; print Dumper($_);
-    warn unless length($_->{key}) == $_->{key_len};
-    warn unless length($_->{data}) == $_->{data_len};
+  #use Data::Dumper; print Dumper($_);
+  warn unless length( $_->{key} ) == $_->{key_len};
+  warn unless length( $_->{data} ) == $_->{data_len};
 
-    my $failed;
-    # Test OO interface
-    my $hasher = Digest::HMAC_MD6->new($_->{key});
-    $hasher->add($_->{data});
-    $failed++ unless $hasher->digest eq $_->{digest};
+  my $failed;
+  # Test OO interface
+  my $hasher = Digest::HMAC_MD6->new( $_->{key} );
+  $hasher->add( $_->{data} );
+  $failed++ unless $hasher->digest eq $_->{digest};
 
-    # Test functional interface
-    $failed++ if hmac_md6($_->{data}, $_->{key}) ne $_->{digest};
-    print "not " if $failed;
-    print "ok $testno\n";
+  # Test functional interface
+  $failed++ if hmac_md6( $_->{data}, $_->{key} ) ne $_->{digest};
+  print "not " if $failed;
+  print "ok $testno\n";
 }
 
 # Digest::SHA1 might fail if the SHA module is not installed
 eval {
-   # use Digest::HMAC_SHA1 qw(hmac_sha1);
-   require Digest::HMAC_SHA1;
-   *hmac_sha1 = \&Digest::HMAC_SHA1::hmac_sha1;
+  # use Digest::HMAC_SHA1 qw(hmac_sha1);
+  require Digest::HMAC_SHA1;
+  *hmac_sha1 = \&Digest::HMAC_SHA1::hmac_sha1;
 };
-if ($@) {
-   print "\n# HMAC-SHA-1 tests skipped\n$@\n";
-   for (8..14) { print "ok $_\n"; }
+if ( $@ ) {
+  print "\n# HMAC-SHA-1 tests skipped\n$@\n";
+  for ( 8 .. 14 ) { print "ok $_\n"; }
 }
 else {
 
-print "\n# HMAC-SHA-1 tests\n";
-foreach (@{$case{"HMAC-SHA-1"}}) {
+  print "\n# HMAC-SHA-1 tests\n";
+  foreach ( @{ $case{"HMAC-SHA-1"} } ) {
     $testno++;
     #use Data::Dumper; print Dumper($_);
-    warn unless length($_->{key}) == $_->{key_len};
-    warn unless length($_->{data}) == $_->{data_len};
+    warn unless length( $_->{key} ) == $_->{key_len};
+    warn unless length( $_->{data} ) == $_->{data_len};
 
     my $failed;
     # Test OO interface
-    my $hasher = Digest::HMAC_SHA1->new($_->{key});
-    $hasher->add($_->{data});
+    my $hasher = Digest::HMAC_SHA1->new( $_->{key} );
+    $hasher->add( $_->{data} );
     $failed++ unless $hasher->digest eq $_->{digest};
 
     # Test functional interface
-    $failed++ if hmac_sha1($_->{data}, $_->{key}) ne $_->{digest};
+    $failed++ if hmac_sha1( $_->{data}, $_->{key} ) ne $_->{digest};
 
     print "not " if $failed;
     print "ok $testno\n";
-}
+  }
 }
 
 __END__
