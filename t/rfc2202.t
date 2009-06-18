@@ -47,9 +47,9 @@ sub save
 
 $testno = 0;
 
-use Digest::HMAC_MD5 qw(hmac_md5);
-print "\n# HMAC-MD5 tests\n";
-foreach (@{$case{"HMAC-MD5"}}) {
+use Digest::HMAC_MD6 qw(hmac_md6);
+print "\n# HMAC-MD6 tests\n";
+foreach (@{$case{"HMAC-MD6"}}) {
     $testno++;
 
     # This is a temporary workaround necessitated by a DEC
@@ -72,12 +72,12 @@ foreach (@{$case{"HMAC-MD5"}}) {
 
     my $failed;
     # Test OO interface
-    my $hasher = Digest::HMAC_MD5->new($_->{key});
+    my $hasher = Digest::HMAC_MD6->new($_->{key});
     $hasher->add($_->{data});
     $failed++ unless $hasher->digest eq $_->{digest};
 
     # Test functional interface
-    $failed++ if hmac_md5($_->{data}, $_->{key}) ne $_->{digest};
+    $failed++ if hmac_md6($_->{data}, $_->{key}) ne $_->{digest};
     print "not " if $failed;
     print "ok $testno\n";
 }
@@ -125,7 +125,7 @@ Category: Informational                                        R. Glenn
                                                          September 1997
 
 
-                 Test Cases for HMAC-MD5 and HMAC-SHA-1
+                 Test Cases for HMAC-MD6 and HMAC-SHA-1
 
 Status of This Memo
 
@@ -135,13 +135,13 @@ Status of This Memo
 
 Abstract
 
-   This document provides two sets of test cases for HMAC-MD5 and HMAC-
-   SHA-1, respectively. HMAC-MD5 and HMAC-SHA-1 are two constructs of
-   the HMAC [HMAC] message authentication function using the MD5 [MD5]
+   This document provides two sets of test cases for HMAC-MD6 and HMAC-
+   SHA-1, respectively. HMAC-MD6 and HMAC-SHA-1 are two constructs of
+   the HMAC [HMAC] message authentication function using the MD6 [MD6]
    hash function and the SHA-1 [SHA] hash function. Both constructs are
    used by IPSEC [OG,CG] and other protocols to authenticate messages.
    The test cases and results provided in this document are meant to be
-   used as a conformance test for HMAC-MD5 and HMAC-SHA-1
+   used as a conformance test for HMAC-MD6 and HMAC-SHA-1
    implementations.
 
 1. Introduction
@@ -153,7 +153,7 @@ Abstract
    we should keep the more significant bits (the bits in the left,
    assuming a network byte order (big-endian)).
 
-   In sections 2 and 3 we provide test cases for HMAC-MD5 and HMAC-SHA-
+   In sections 2 and 3 we provide test cases for HMAC-MD6 and HMAC-SHA-
    1, respectively. Each case includes the key, the data, and the
    result.  The values of keys and data are either hexadecimal numbers
    (prefixed by "0x") or ASCII character strings in double quotes. If a
@@ -171,15 +171,15 @@ Abstract
 
 Cheng & Glenn                Informational                      [Page 1]
 
-RFC 2202         Test Cases for HMAC-MD5 and HMAC-SHA-1   September 1997
+RFC 2202         Test Cases for HMAC-MD6 and HMAC-SHA-1   September 1997
 
 
    The C source code of the functions used to generate HMAC-SHA-1
    results is listed in the Appendix. Note that these functions are
    meant to be simple and easy to understand; they are not optimized in
-   any way. The C source code for computing HMAC-MD5 can be found in
-   [MD5]; or you can do a simple modification to HMAC-SHA-1 code to get
-   HMAC-MD5 code, as explained in the Appendix.
+   any way. The C source code for computing HMAC-MD6 can be found in
+   [MD6]; or you can do a simple modification to HMAC-SHA-1 code to get
+   HMAC-MD6 code, as explained in the Appendix.
 
    The test cases in this document are cross-verified by three
    independent implementations, one from NIST and two from IBM Research.
@@ -189,7 +189,7 @@ RFC 2202         Test Cases for HMAC-MD5 and HMAC-SHA-1   September 1997
    similar implemenations.  We do not claim that such an implementation
    is absolutely correct with respect to the HMAC definition in [HMAC].
 
-2. Test Cases for HMAC-MD5
+2. Test Cases for HMAC-MD6
 
 test_case =     1
 key =           0x0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b
@@ -227,7 +227,7 @@ digest =        0x697eaf0aca3a3aea3a75164746ffaa79
 
 Cheng & Glenn                Informational                      [Page 2]
 
-RFC 2202         Test Cases for HMAC-MD5 and HMAC-SHA-1   September 1997
+RFC 2202         Test Cases for HMAC-MD6 and HMAC-SHA-1   September 1997
 
 
 test_case =     5
@@ -283,7 +283,7 @@ digest =        0x125d7342b9ac11cd91a39af48aa17b4f63f175d3
 
 Cheng & Glenn                Informational                      [Page 3]
 
-RFC 2202         Test Cases for HMAC-MD5 and HMAC-SHA-1   September 1997
+RFC 2202         Test Cases for HMAC-MD6 and HMAC-SHA-1   September 1997
 
 
 test_case =     4
@@ -321,7 +321,7 @@ digest =        0xe8e99d0f45237d786d6bbaa7965c7808bbff1a91
 
 Cheng & Glenn                Informational                      [Page 4]
 
-RFC 2202         Test Cases for HMAC-MD5 and HMAC-SHA-1   September 1997
+RFC 2202         Test Cases for HMAC-MD6 and HMAC-SHA-1   September 1997
 
 
 4. Security Considerations
@@ -335,13 +335,13 @@ References
              "HMAC: Keyed-Hashing for Message Authentication",
              RFC 2104, February 1997.
 
-   [MD5]     Rivest, R., "The MD5 Message-Digest Algorithm",
+   [MD6]     Rivest, R., "The MD6 Message-Digest Algorithm",
              RFC 1321, April 1992.
 
    [SHA]     NIST, FIPS PUB 180-1: Secure Hash Standard, April 1995.
 
    [OG]      Oehler, M., and R. Glenn,
-             "HMAC-MD5 IP Authentication with Replay Prevention",
+             "HMAC-MD6 IP Authentication with Replay Prevention",
              RFC 2085, February 1997.
 
    [CG]      Chang, S., and R. Glenn,
@@ -377,7 +377,7 @@ References
 
 Cheng & Glenn                Informational                      [Page 5]
 
-RFC 2202         Test Cases for HMAC-MD5 and HMAC-SHA-1   September 1997
+RFC 2202         Test Cases for HMAC-MD6 and HMAC-SHA-1   September 1997
 
 
 Authors' Addresses
@@ -433,16 +433,16 @@ Authors' Addresses
 
 Cheng & Glenn                Informational                      [Page 6]
 
-RFC 2202         Test Cases for HMAC-MD5 and HMAC-SHA-1   September 1997
+RFC 2202         Test Cases for HMAC-MD6 and HMAC-SHA-1   September 1997
 
 
 Appendix
 
    This appendix contains the C reference code which implements HMAC-
    SHA-1 using an existing SHA-1 library.  It assumes that the SHA-1
-   library has similar API's as those of the MD5 code described in RFC
-   1321.  The code for HMAC-MD5 is similar, just replace the strings
-   "SHA" and "sha" with "MD5" and "md5". HMAC-MD5 code is also listed in
+   library has similar API's as those of the MD6 code described in RFC
+   1321.  The code for HMAC-MD6 is similar, just replace the strings
+   "SHA" and "sha" with "MD6" and "md6". HMAC-MD6 code is also listed in
    RFC 2104.
 
    #ifndef SHA_DIGESTSIZE
@@ -453,12 +453,12 @@ Appendix
    #define SHA_BLOCKSIZE   64
    #endif
 
-   #ifndef MD5_DIGESTSIZE
-   #define MD5_DIGESTSIZE  16
+   #ifndef MD6_DIGESTSIZE
+   #define MD6_DIGESTSIZE  16
    #endif
 
-   #ifndef MD5_BLOCKSIZE
-   #define MD5_BLOCKSIZE   64
+   #ifndef MD6_BLOCKSIZE
+   #define MD6_BLOCKSIZE   64
    #endif
 
    /* Function to print the digest */
@@ -489,7 +489,7 @@ Appendix
 
 Cheng & Glenn                Informational                      [Page 7]
 
-RFC 2202         Test Cases for HMAC-MD5 and HMAC-SHA-1   September 1997
+RFC 2202         Test Cases for HMAC-MD6 and HMAC-SHA-1   September 1997
 
 
    /* Function to compute the digest */
@@ -545,7 +545,7 @@ RFC 2202         Test Cases for HMAC-MD5 and HMAC-SHA-1   September 1997
 
 Cheng & Glenn                Informational                      [Page 8]
 
-RFC 2202         Test Cases for HMAC-MD5 and HMAC-SHA-1   September 1997
+RFC 2202         Test Cases for HMAC-MD6 and HMAC-SHA-1   September 1997
 
 
            for (i = 0 ; i < lk ; ++i) buf[i] = k[i] ^ 0x5C ;
