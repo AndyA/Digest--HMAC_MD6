@@ -15,11 +15,11 @@ Digest::HMAC_MD6 - MD6 Keyed-Hashing for Message Authentication
 
 =head1 VERSION
 
-This document describes Digest::HMAC_MD6 version 0.01
+This document describes Digest::HMAC_MD6 version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 SYNOPSIS
 
