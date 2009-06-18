@@ -46,36 +46,99 @@ This module provides HMAC-MD6 hashing.
 
 =head2 C<< new >>
 
+Create a new C<Digest::HMAC_MD6>. The arguments are
+
+=over
+
+=item C<$key>
+
+The key to hash with.
+
+=item C<$block_size>
+
+The block size to use.
+
+=item C<$hash_bits>
+
+The number of bits of hash to compute.
+
+=back
+
+The C<$block_size> and C<$hash_bits> arguments may be omitted in which
+case they default to 64 and 256 respectively.
+
 =cut
 
 sub new {
   my ( $class, $key, $block_size, $hash_bits ) = @_;
 
   $block_size ||= 64;
-  local $Digest::MD6::HASH_LENGTH;
-  $Digest::MD6::HASH_LENGTH = $hash_bits if defined $hash_bits;
+ 
+  $DB::single = 1 if $hash_bits == 512;
 
-  $key = Digest::MD6->new->add( $key )->digest
+  $key = Digest::MD6->new( $hash_bits )->add( $key )->digest
    if length( $key ) > $block_size;
 
   my $self = bless {}, $class;
   $self->{k_ipad} = $key ^ ( chr( 0x36 ) x $block_size );
   $self->{k_opad} = $key ^ ( chr( 0x5c ) x $block_size );
-  $self->{hasher} = Digest::MD6->new->add( $self->{k_ipad} );
-  $self;
+  $self->{hasher}
+   = Digest::MD6->new( $hash_bits )->add( $self->{k_ipad} );
+  return $self;
 }
 
 ### Functional interface
+
+=head2 C<hmac_md6>
+
+Compute a MD6 HMAC hash and return its binary representation. The arguments are
+
+=over
+
+=item C<$data>
+
+The data to hash.
+
+=item C<$key>
+
+The key to hash with.
+
+=item C<$block_size>
+
+The block size to use.
+
+=item C<$hash_bits>
+
+The number of bits of hash to compute.
+
+=back
+
+The C<$block_size> and C<$hash_bits> arguments may be omitted in which
+case they default to 64 and 256 respectively.
+
+=cut
 
 sub hmac_md6 {
   my $data = shift;
   __PACKAGE__->new( @_ )->add( $data )->digest;
 }
 
+=head2 C<hmac_md6_hex>
+
+Like L</hmac_md6> but return the hex representation of the key.
+
+=cut
+
 sub hmac_md6_hex {
   my $data = shift;
   __PACKAGE__->new( @_ )->add( $data )->hexdigest;
 }
+
+=head2 C<hmac_md6_base64>
+
+Like L</hmac_md6> but return the base 64 representation of the key.
+
+=cut
 
 sub hmac_md6_base64 {
   my $data = shift;
